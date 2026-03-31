@@ -1,13 +1,24 @@
 import hashlib
 
-EXPECTED_HASH = "4cf7f0460b8334e0b9df94c5610ef90ebc163985900b4d1ecb29799367538919"
+def calculate_sha256(file_path):
+    sha256 = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-with open("adap_ledger.json", "rb") as f:
-    computed_hash = hashlib.sha256(f.read()).hexdigest()
+ledger_file = "ledger.json"
+hash_file = "ledger.sha256"
 
-print("Computed hash:", computed_hash)
+calculated_hash = calculate_sha256(ledger_file)
 
-if computed_hash == EXPECTED_HASH:
-    print("VALID: Ledger íntegro e não alterado.")
+with open(hash_file, "r") as f:
+    expected_hash = f.read().strip()
+
+print("Computed:", calculated_hash)
+print("Expected:", expected_hash)
+
+if calculated_hash == expected_hash:
+    print("VALID: Ledger íntegro")
 else:
-    print("INVALID: Ledger foi modificado ou o hash não corresponde.")
+    print("INVALID: Ledger alterado")
